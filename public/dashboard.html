@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="pt-br" class="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wave | Dashboard</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+darkMode: 'class',
+theme: {
+extend: {
+fontFamily: {
+sans: ['Outfit', 'sans-serif'],
+display: ['Space Grotesk', 'sans-serif']
+},
+colors: {
+dark: '#0D0D0D',
+charcoal: '#1A1A1A',
+graphite: '#2D2D2D',
+slate: '#404040',
+silver: '#8C8C8C',
+pearl: '#E5E5E5',
+white: '#FFFFFF',
+navy: '#1E3A5F',
+royal: '#2563EB',
+sky: '#0EA5E9',
+cyan: '#06B6D4',
+beige: '#C9A96E',
+gold: '#D4A853',
+success: '#22C55E',
+warning: '#F59E0B',
+danger: '#EF4444'
+}
+}
+}
+}
+window.currentUser = null;
+</script>
+<style>
+* { font-family: 'Outfit', sans-serif; -webkit-font-smoothing: antialiased; }
+body { background: #0D0D0D; min-height: 100vh; }
+.ambient-bg { position: fixed; inset: 0; background: radial-gradient(ellipse 80% 50% at 50% -20%, rgba(30, 58, 95, 0.3) 0%, transparent 50%), radial-gradient(ellipse 60% 40% at 80% 100%, rgba(201, 169, 110, 0.1) 0%, transparent 40%), radial-gradient(ellipse 50% 30% at 10% 80%, rgba(37, 99, 235, 0.15) 0%, transparent 40%), #0D0D0D; pointer-events: none; z-index: 0; }
+.noise-overlay { position: fixed; inset: 0; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E"); opacity: 0.03; pointer-events: none; z-index: 1; }
+.glass-card { background: linear-gradient(135deg, rgba(45, 45, 45, 0.6) 0%, rgba(26, 26, 26, 0.8) 100%); backdrop-filter: blur(24px); border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4); }
+.premium-input { background: rgba(13, 13, 13, 0.8); border: 1px solid #404040; color: #E5E5E5; transition: all 0.3s; }
+.premium-input:focus { border-color: #2563EB; box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15); outline: none; }
+.btn-premium { background: linear-gradient(135deg, #2563EB 0%, #1E3A5F 100%); color: #FFFFFF; font-weight: 600; transition: all 0.3s; box-shadow: 0 4px 16px rgba(37, 99, 235, 0.3); }
+.btn-premium:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(37, 99, 235, 0.4); }
+.metric-card { background: linear-gradient(135deg, rgba(45, 45, 45, 0.8) 0%, rgba(26, 26, 26, 0.9) 100%); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.06); }
+.premium-table { color: #E5E5E5; }
+.premium-table th { color: #8C8C8C; font-weight: 500; border-bottom: 1px solid #2D2D2D; }
+.premium-table td { border-bottom: 1px solid rgba(45, 45, 45, 0.5); }
+.fade-enter { animation: fadeIn 0.3s ease-out; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+.sidebar-open { transform: translateX(0); }
+.sidebar-closed { transform: translateX(-100%); }
+@media (min-width: 1024px) { .lg-sidebar-open { transform: translateX(0); } }
+.touch-target { min-height: 44px; }
+body.is-client .client-col { display: none !important; }
+</style>
+</head>
+<body class="min-h-screen overflow-x-hidden">
+<div class="ambient-bg"></div>
+<div class="noise-overlay"></div>
+
+<header class="lg:hidden fixed top-0 left-0 right-0 z-50 glass-card border-b border-graphite">
+<div class="flex items-center justify-between px-4 py-3">
+<button onclick="toggleSidebar()" class="p-2 rounded-lg hover:bg-white/5">
+<svg class="w-6 h-6 text-silver" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+</button>
+<h1 class="text-lg font-display font-semibold text-white">Wave</h1>
+<button onclick="logout()" class="p-2 rounded-lg hover:bg-white/5 text-silver">
+<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+</button>
+</div>
+</header>
+
+<aside id="sidebar" class="fixed left-0 top-16 lg:top-0 bottom-0 w-72 glass-card border-r border-graphite z-40 transform -translate-x-full lg:translate-x-0 transition-transform duration-300">
+<div class="flex flex-col h-full">
+<div class="p-6 border-b border-graphite">
+<h1 class="text-2xl font-display font-bold text-white">Wave</h1>
+<p class="text-silver text-sm mt-3">Analytics Premium</p>
+</div>
+<nav id="navMenu" class="flex-1 p-4 space-y-2 overflow-y-auto"></nav>
+<div class="p-4 border-t border-graphite">
+<button onclick="logout()" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-silver hover:bg-danger/20 hover:text-danger transition">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+<span>Sair</span>
+</button>
+</div>
+</div>
+</aside>
+
+<main class="lg:ml-72 pt-16 lg:pt-0 min-h-screen relative z-10">
+<div class="p-6 lg:p-8">
+<div class="mb-8">
+<h1 id="pageTitle" class="text-2xl font-display font-bold text-white">Dashboard</h1>
+<p id="pageSubtitle" class="text-silver text-sm mt-1">Visão geral</p>
+</div>
+<div id="contentArea" class="space-y-6"></div>
+</div>
+</main>
+
+<div id="sidebarOverlay" class="fixed inset-0 bg-black/50 z-30 hidden lg:hidden" onclick="toggleSidebar()"></div>
+
+<script>
+async function bootstrapSession() {
+    try {
+        const res = await fetch('/api/auth/me', { credentials: 'same-origin' });
+        if (!res.ok) {
+            window.location.href = '/index.html';
+            return false;
+        }
+        const data = await res.json();
+        const user = data.user || null;
+        if (!user) {
+            window.location.href = '/index.html';
+            return;
+        }
+        window.currentUser = user;
+        sessionStorage.setItem('userId', user.id);
+        sessionStorage.setItem('role', user.role);
+        sessionStorage.setItem('clientId', user.client_id || '');
+        sessionStorage.setItem('username', user.username || '');
+        if (user.role === 'client' && user.preferences?.effectiveViewMode) {
+            try { localStorage.setItem('dashlab_client_view_mode', user.preferences.effectiveViewMode); } catch (_) {}
+        }
+        if (window.currentUser?.role === 'client') {
+            document.body.classList.add('is-client');
+        }
+    } catch (error) {
+        window.location.href = '/index.html';
+        return false;
+    }
+    return true;
+}
+function toggleSidebar() {
+const sidebar = document.getElementById('sidebar');
+const overlay = document.getElementById('sidebarOverlay');
+sidebar.classList.toggle('-translate-x-full');
+overlay.classList.toggle('hidden');
+}
+function closeSidebarOnMobile() {
+if (window.innerWidth < 1024) {
+const sidebar = document.getElementById('sidebar');
+const overlay = document.getElementById('sidebarOverlay');
+sidebar.classList.add('-translate-x-full');
+overlay.classList.add('hidden');
+}
+}
+async function logout() {
+try {
+await fetch('/api/auth/logout', { method: 'POST', credentials: 'same-origin' });
+} catch (_error) {}
+window.location.href = '/index.html';
+}
+</script>
+<script src="/js/dashboard.js?v=16"></script>
+<script defer src="/js/dataManagement.js?v=16"></script>
+<script defer src="/js/manualData.js?v=16"></script>
+<script defer src="/js/import.js?v=16"></script>
+<script defer src="/js/clients.js?v=16"></script>
+<script defer src="/js/settings.js?v=16"></script>
+<script>
+document.addEventListener('DOMContentLoaded', async function() {
+const ok = await bootstrapSession();
+if (!ok) return;
+try {
+if (typeof initNavigation === 'function') {
+initNavigation();
+}
+if (typeof navigateTo === 'function') {
+navigateTo('dashboard');
+}
+} catch (e) {
+console.error('Bootstrap init error:', e);
+const content = document.getElementById('contentArea');
+if (content) content.innerHTML = '<div class="text-center text-danger py-12">Erro ao inicializar dashboard</div>';
+}
+});
+</script>
+</body>
+</html>

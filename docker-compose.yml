@@ -1,0 +1,12 @@
+services:
+  addash:
+    build: .
+    container_name: addash
+    restart: unless-stopped
+    env_file:
+      - ./.env
+    ports:
+      - "3220:3220"
+    volumes:
+      - ./server/data:/app/server/data
+      - ./public:/app/public

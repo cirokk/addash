@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="pt-br" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wave | Premium Analytics</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { 
+                        sans: ['Outfit', 'sans-serif'],
+                        display: ['Space Grotesk', 'sans-serif']
+                    },
+                    colors: {
+                        dark: '#0D0D0D',
+                        charcoal: '#1A1A1A',
+                        graphite: '#2D2D2D',
+                        slate: '#404040',
+                        silver: '#8C8C8C',
+                        pearl: '#E5E5E5',
+                        white: '#FFFFFF',
+                        navy: '#1E3A5F',
+                        royal: '#2563EB',
+                        sky: '#0EA5E9',
+                        cyan: '#06B6D4',
+                        beige: '#C9A96E',
+                        gold: '#D4A853',
+                        cream: '#F5F0E6',
+                        success: '#22C55E',
+                        warning: '#F59E0B',
+                        danger: '#EF4444'
+                    },
+                    screens: {
+                        'xs': '475px',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        * { 
+            font-family: 'Outfit', sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+        
+        body { background: #0D0D0D; min-height: 100vh; }
+        
+        .ambient-bg {
+            position: fixed;
+            inset: 0;
+            background: 
+                radial-gradient(ellipse 80% 50% at 50% -20%, rgba(30, 58, 95, 0.4) 0%, transparent 50%),
+                radial-gradient(ellipse 60% 40% at 80% 100%, rgba(201, 169, 110, 0.15) 0%, transparent 40%),
+                radial-gradient(ellipse 50% 30% at 10% 80%, rgba(37, 99, 235, 0.2) 0%, transparent 40%),
+                #0D0D0D;
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        .noise-overlay {
+            position: fixed;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+            opacity: 0.03;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        .glass-card {
+            background: linear-gradient(135deg, rgba(45, 45, 45, 0.6) 0%, rgba(26, 26, 26, 0.8) 100%);
+            backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        }
+        
+        .premium-input {
+            background: rgba(13, 13, 13, 0.8);
+            border: 1px solid #404040;
+            color: #E5E5E5;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .premium-input:focus {
+            border-color: #2563EB;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15), 0 8px 32px rgba(37, 99, 235, 0.1);
+            outline: none;
+        }
+        
+        .btn-premium {
+            background: linear-gradient(135deg, #2563EB 0%, #1E3A5F 100%);
+            color: #FFFFFF;
+            font-weight: 600;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 16px rgba(37, 99, 235, 0.3);
+        }
+        .btn-premium:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 32px rgba(37, 99, 235, 0.4);
+        }
+        
+        .fade-enter {
+            animation: fadeEnter 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+        @keyframes fadeEnter {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .mobile-menu-btn {
+            display: none;
+        }
+        
+        @media (max-width: 1024px) {
+            .mobile-menu-btn {
+                display: flex;
+            }
+        }
+        
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #1A1A1A; }
+        ::-webkit-scrollbar-thumb { background: #404040; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #505050; }
+        
+        .table-responsive {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .touch-target {
+            min-height: 44px;
+            min-width: 44px;
+        }
+    </style>
+</head>
+<body class="text-silver font-sans antialiased relative">
+    <div class="ambient-bg"></div>
+    <div class="noise-overlay"></div>
+    
+    <div class="relative z-10 min-h-screen flex items-center justify-center p-4 sm:p-6">
+        <div class="w-full max-w-md">
+            <div class="text-center mb-10 fade-enter">
+                <h1 class="text-4xl sm:text-5xl font-display font-bold text-white tracking-tight">WAVE</h1>
+                <p class="text-silver text-sm mt-4 font-medium">Premium Analytics</p>
+                <div class="w-24 mx-auto mt-5 h-px bg-gradient-to-r from-transparent via-beige/30 to-transparent"></div>
+            </div>
+
+            <div class="glass-card rounded-2xl sm:rounded-3xl p-6 sm:p-10 fade-enter stagger-1">
+                <h2 class="text-xl sm:text-2xl font-display font-semibold text-white mb-6 sm:mb-8 text-center">Bem-vindo de volta</h2>
+                
+                <form id="loginForm" class="space-y-5 sm:space-y-6">
+                    <div>
+                        <label class="block text-sm font-medium text-silver mb-2 sm:mb-3 ml-1">Usuário</label>
+                        <input type="text" id="username" 
+                            class="premium-input w-full rounded-xl sm:rounded-2xl px-4 sm:px-5 py-3.5 sm:py-4 text-base"
+                            placeholder="Seu usuário">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-silver mb-2 sm:mb-3 ml-1">Senha</label>
+                        <input type="password" id="password" 
+                            class="premium-input w-full rounded-xl sm:rounded-2xl px-4 sm:px-5 py-3.5 sm:py-4 text-base"
+                            placeholder="••••••••">
+                    </div>
+
+                    <button type="submit" class="btn-premium w-full rounded-xl sm:rounded-2xl py-3.5 sm:py-4 text-base sm:text-lg mt-2 touch-target">
+                        Entrar
+                    </button>
+
+                    <p id="error" class="text-danger text-sm text-center hidden py-3 bg-danger/10 rounded-xl"></p>
+                </form>
+            </div>
+
+            <p class="text-center text-graphite text-xs mt-8 sm:mt-10">
+                © 2026 Wave Analytics. Todos os direitos reservados.
+            </p>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const errorEl = document.getElementById('error');
+            
+            if (!username || !password) {
+                errorEl.textContent = 'Preencha todos os campos';
+                errorEl.classList.remove('hidden');
+                return;
+            }
+            
+            try {
+                const res = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'same-origin',
+                    body: JSON.stringify({ username, password })
+                });
+                const data = await res.json();
+                
+                if (res.ok) {
+                    window.location.href = '/dashboard.html';
+                } else {
+                    errorEl.textContent = data.error || 'Erro ao fazer login';
+                    errorEl.classList.remove('hidden');
+                }
+            } catch (e) {
+                errorEl.textContent = 'Erro de conexão';
+                errorEl.classList.remove('hidden');
+            }
+        });
+    </script>
+</body>
+</html>
