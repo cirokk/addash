@@ -45,7 +45,6 @@ Ideal para agências que precisam:
 ### 👥 Gestão
 - Cadastro de clientes
 - Permissões por usuário
-- Prazos e lembretes por email
 
 ### 🔒 Segurança
 - Autenticação com sessões seguras
